@@ -1,6 +1,6 @@
 #  IExpensive
 
-```
+```swift
 import SwiftUI
 
 @Observable
