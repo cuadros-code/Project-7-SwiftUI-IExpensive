@@ -1,9 +1,6 @@
-//
-//  ContentView.swift
-//  Project-7-SwiftUI-IExpensive
-//
-//  Created by Kevin Cuadros on 4/11/24.
-//
+#  IExpensive
+
+```
 import SwiftUI
 
 @Observable
