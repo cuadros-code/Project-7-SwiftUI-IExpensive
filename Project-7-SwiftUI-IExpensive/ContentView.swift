@@ -15,8 +15,6 @@ struct User: Codable {
 
 struct ContentView: View {
     
-//    @State private var tapCount = UserDefaults.standard.integer(forKey: "Tap")
-    
     @AppStorage("tapCount") private var tapCount = 0
     
     @State private var user = User(firstName: "Taylor", lastName: "Swift")
@@ -26,7 +24,6 @@ struct ContentView: View {
            
             Button("Tap Count: \(tapCount)") {
                 tapCount += 1
-//                UserDefaults.standard.set(tapCount, forKey: "Tap")
                 
                 let encoder = JSONEncoder()
 
