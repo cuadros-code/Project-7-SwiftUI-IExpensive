@@ -6,34 +6,60 @@
 //
 import SwiftUI
 
+// If the struct has an Identifiable protocol
+// the id in ForEach is not required
 
-struct User: Codable {
-    let firstName: String
-    let lastName : String
+// We has this
+// ForEach(expenses.items, id: \.id) { item in
+//    Text(item.name)
+// }
+
+// To his
+// ForEach(expenses.items) { item in
+//    Text(item.name)
+// }
+
+struct ExpenseItem: Identifiable {
+    let id = UUID()
+    let name: String
+    let type: String
+    let amount: Double
+}
+
+@Observable
+class Expenses {
+    var items = [ExpenseItem]()
 }
 
 
 struct ContentView: View {
     
-    @AppStorage("tapCount") private var tapCount = 0
-    
-    @State private var user = User(firstName: "Taylor", lastName: "Swift")
+    @State private var expenses = Expenses()
     
     var body: some View {
-        VStack {
-           
-            Button("Tap Count: \(tapCount)") {
-                tapCount += 1
-                
-                let encoder = JSONEncoder()
-
-                if let data = try? encoder.encode(user) {
-                    UserDefaults.standard.set(data, forKey: "UserData")
+        NavigationStack {
+         
+            List {
+                ForEach(expenses.items) { item in
+                    Text(item.name)
                 }
-                
+                .onDelete(perform: removeItem)
+            }
+            
+            .navigationTitle("iExpenses")
+            .toolbar {
+                Button("Add Expenses", systemImage: "plus") {
+                    let expense = ExpenseItem(name: "Test", type: "Persnal", amount: 12.00)
+                    withAnimation {
+                     expenses.items.append(expense)
+                    }
+                }
             }
         }
-        
+    }
+    
+    func removeItem(at offsets: IndexSet) {
+        expenses.items.remove(atOffsets: offsets)
     }
     
 }
