@@ -1,6 +1,7 @@
 #  IExpensive
 
-- News: 
+### News
+
 ```@Environment(\.dismiss) var dismiss```
 
 ```@Observable class```
