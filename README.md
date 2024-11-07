@@ -4,7 +4,17 @@
 
 ```@Environment(\.dismiss) var dismiss```
 
+```Identifiable, Codable```
+
 ```@Observable class```
+
+```JSONEncoder().encode```
+
+```JSONDecoder().decode```
+
+```Locale.current.currency?.identifier```
+
+---
 
 ## Sharing SwiftUI state with @Observable
 
