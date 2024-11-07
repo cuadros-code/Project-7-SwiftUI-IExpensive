@@ -38,7 +38,8 @@ struct AddView: View {
                     let item = ExpenseItem(
                         name: name,
                         type: type,
-                        amount: amount
+                        amount: amount,
+                        isComplete: false
                     )
                     expenses.items.append(item)
                     dismiss()

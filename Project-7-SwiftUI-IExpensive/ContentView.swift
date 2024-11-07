@@ -24,6 +24,7 @@ struct ExpenseItem: Identifiable, Codable {
     let name: String
     let type: String
     let amount: Double
+    var isComplete: Bool
 }
 
 @Observable
@@ -36,7 +37,9 @@ class Expenses {
             }
             total = 0.0
             items.forEach { item in
-                total += item.amount
+                if item.isComplete == false {
+                    total += item.amount
+                }
             }
         }
     }
@@ -69,7 +72,7 @@ struct ContentView: View {
                 Section("Personal") {
                     ForEach(expenses.items) { item in
                         if item.type == "Personal" {
-                            ListItem(item: item)
+                            ListItem(item: item, expenses: expenses)
                         }
                     }
                     .onDelete(perform: removeItem)
@@ -79,7 +82,7 @@ struct ContentView: View {
                 Section("Business") {
                     ForEach(expenses.items) { item in
                         if item.type == "Business" {
-                            ListItem(item: item)
+                            ListItem(item: item, expenses: expenses)
                         }
                     }
                     .onDelete(perform: removeItem)
@@ -125,9 +128,16 @@ struct ContentView: View {
 struct ListItem: View {
     var item: ExpenseItem
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
+    var expenses: Expenses
     
     var body: some View {
         HStack {
+            if item.isComplete {
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundStyle(.green)
+                    .animation(.bouncy, value: item.isComplete)
+            }
+            
             VStack(alignment: .leading) {
                 Text(item.name)
                     .font(.headline)
@@ -136,8 +146,37 @@ struct ListItem: View {
             }
             Spacer()
             PriceItem(price: item.amount)
+                .strikethrough(item.isComplete, color: .black)
+        }
+        .contextMenu {
+            Button(role: .destructive) {
+                expenses.items.removeAll(where: { $0.id == item.id })
+            } label: {
+                Text("Delete")
+                Image(systemName: "trash")
+            }
+            Button {
+                toggleCompleteItem()
+            } label: {
+                Text("Mark \(item.isComplete ? "incomplete" : "complete")")
+                Image(systemName: "checkmark.circle")
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            toggleCompleteItem()
         }
     }
+    
+    
+    func toggleCompleteItem() {
+        if let index = expenses.items.firstIndex(where: { $0.id == item.id }) {
+            withAnimation{
+                expenses.items[index].isComplete.toggle()
+            }
+        }
+    }
+    
 }
 
 struct PriceItem: View {
@@ -148,7 +187,7 @@ struct PriceItem: View {
         Text(price, format: .currency(code: currencyPreference))
             .fontWeight(.bold)
             .foregroundStyle(
-                price < 50000 ? .green : price < 100000 ? .blue : .red
+                price < 50000 ? .green : price < 100000 ? .blue : .purple
             )
     }
 }
