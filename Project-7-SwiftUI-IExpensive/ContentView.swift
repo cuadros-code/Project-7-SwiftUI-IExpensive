@@ -28,7 +28,6 @@ struct ExpenseItem: Identifiable, Codable {
 
 @Observable
 class Expenses {
-    
     var total = 0.0
     var items = [ExpenseItem]() {
         didSet {
@@ -52,7 +51,6 @@ class Expenses {
                 return
             }
         }
-        
         items = []
     }
     
@@ -60,25 +58,28 @@ class Expenses {
 
 
 struct ContentView: View {
-    
     @State private var expenses = Expenses()
     @State private var showingAddExpense = false
     
+    var currencyPreference = Locale.current.currency?.identifier ?? "USD"
+    
     var body: some View {
         NavigationStack {
-         
             List {
-                Section {
+                Section("Personal") {
                     ForEach(expenses.items) { item in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(item.name)
-                                    .font(.headline)
-                                Text(item.type)
-                                    .font(.subheadline)
-                            }
-                            Spacer()
-                            Text(item.amount, format: .currency(code: "COP"))
+                        if item.type == "Personal" {
+                            ListItem(item: item)
+                        }
+                    }
+                    .onDelete(perform: removeItem)
+                    
+                }
+                
+                Section("Business") {
+                    ForEach(expenses.items) { item in
+                        if item.type == "Business" {
+                            ListItem(item: item)
                         }
                     }
                     .onDelete(perform: removeItem)
@@ -89,20 +90,27 @@ struct ContentView: View {
                         Text("Total")
                             .font(.headline)
                         Spacer()
-                        Text(expenses.total, format: .currency(code: "COP"))
+                        Text(
+                            expenses.total,
+                            format: .currency(code: currencyPreference)
+                        )
+                        .fontWeight(.bold)
                     }
                 }
             }
-            
-            
             .sheet(isPresented: $showingAddExpense) {
                 AddView(expenses: expenses)
             }
             
             .navigationTitle("iExpenses")
             .toolbar {
-                Button("Add Expenses", systemImage: "plus") {
-                    showingAddExpense.toggle()
+                ToolbarItem(placement: .topBarLeading) {
+                    EditButton()
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Add Expenses", systemImage: "plus") {
+                        showingAddExpense.toggle()
+                    }
                 }
             }
         }
@@ -112,6 +120,37 @@ struct ContentView: View {
         expenses.items.remove(atOffsets: offsets)
     }
     
+}
+
+struct ListItem: View {
+    var item: ExpenseItem
+    var currencyPreference = Locale.current.currency?.identifier ?? "USD"
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(item.name)
+                    .font(.headline)
+                Text(item.type)
+                    .font(.subheadline)
+            }
+            Spacer()
+            PriceItem(price: item.amount)
+        }
+    }
+}
+
+struct PriceItem: View {
+    var price: Double
+    var currencyPreference = Locale.current.currency?.identifier ?? "USD"
+    
+    var body: some View {
+        Text(price, format: .currency(code: currencyPreference))
+            .fontWeight(.bold)
+            .foregroundStyle(
+                price < 50000 ? .green : price < 100000 ? .blue : .red
+            )
+    }
 }
 
 #Preview {
