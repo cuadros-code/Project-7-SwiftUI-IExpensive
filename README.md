@@ -1,6 +1,9 @@
 #  IExpensive
 
-- Enviroment: ```@Environment(\.dismiss) var dismiss```
+- News: 
+```@Environment(\.dismiss) var dismiss```
+
+```@Observable class```
 
 ## Sharing SwiftUI state with @Observable
 
