@@ -21,9 +21,9 @@ import SwiftUI
 
 struct ExpenseItem: Identifiable, Codable {
     var id = UUID()
-    let name: String
-    let type: String
-    let amount: Double
+    var name: String
+    var type: String
+    var amount: Double
     var isComplete: Bool
 }
 
@@ -108,7 +108,12 @@ struct ContentView: View {
             .navigationTitle("iExpenses")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    EditButton()
+                    Menu {
+                        EditButton()
+                        Button("Select", action: markComplete)
+                    } label: {
+                        Text("Menu")
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Add Expenses", systemImage: "plus") {
@@ -116,11 +121,20 @@ struct ContentView: View {
                     }
                 }
             }
+            
         }
     }
     
     func removeItem(at offsets: IndexSet) {
         expenses.items.remove(atOffsets: offsets)
+    }
+    
+    func markComplete(){
+        expenses.items = expenses.items.map { item in
+            var modifiedItem = item
+            modifiedItem.isComplete = true
+            return modifiedItem
+        }
     }
     
 }
