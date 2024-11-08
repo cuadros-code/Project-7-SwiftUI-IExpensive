@@ -57,6 +57,11 @@ struct ListItem: View {
                 expenses.items[index].isComplete.toggle()
             }
         }
+        
+        expenses.items.sort{
+            !$0.isComplete && $1.isComplete
+        }
+        
     }
     
 }
