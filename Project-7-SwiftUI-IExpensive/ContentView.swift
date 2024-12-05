@@ -19,7 +19,7 @@ import SwiftUI
 //    Text(item.name)
 // }
 
-struct ExpenseItem: Identifiable, Codable {
+struct ExpenseItem: Identifiable, Codable, Hashable {
     var id = UUID()
     var name: String
     var type: String
@@ -67,7 +67,7 @@ struct ContentView: View {
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(){
             List {
                 Section("Personal") {
                     ForEach(expenses.items) { item in
@@ -101,10 +101,6 @@ struct ContentView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingAddExpense) {
-                AddView(expenses: expenses)
-            }
-            
             .navigationTitle("iExpenses")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -116,13 +112,13 @@ struct ContentView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Add Expenses", systemImage: "plus") {
-                        showingAddExpense.toggle()
+                    NavigationLink("Add") {
+                        AddView(expenses: expenses)
                     }
+                        
                 }
             }
-            
-        }
+                    }
     }
     
     func removeItem(at offsets: IndexSet) {
