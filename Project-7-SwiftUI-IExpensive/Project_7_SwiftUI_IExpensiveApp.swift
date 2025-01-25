@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct Project_7_SwiftUI_IExpensiveApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
-        }
+//            ContentView()
+            ContentViewWithSwiftData()
+        }.modelContainer(for: ExpenseItemData.self)
+        
     }
 }
