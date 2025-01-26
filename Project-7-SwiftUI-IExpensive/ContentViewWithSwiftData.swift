@@ -10,57 +10,20 @@ import SwiftData
 
 struct ContentViewWithSwiftData: View {
     
-    @Query() var expenses: [ExpenseItemData]
-    
+    @Environment(\.modelContext) var modelContext
     @State private var showingAddExpense = false
     
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
     
-    var total: Double {
-        var totalAmount: Double = 0.0
-        expenses.forEach { item in
-            if item.isComplete == false {
-                totalAmount += item.amount
-            }
-        }
-        return totalAmount
-    }
+    @State private var sort: [SortDescriptor] = [
+        SortDescriptor(\ExpenseItemData.amount),
+        SortDescriptor(\ExpenseItemData.name),
+    ]
+    
     
     var body: some View {
         NavigationStack(){
-            List {
-                Section("Personal") {
-                    ForEach(expenses) { item in
-                        if item.type == "Personal" {
-                            ListItemSwiftData(item: item)
-                        }
-                    }
-                    .onDelete(perform: removeItem)
-                    
-                }
-                
-                Section("Business") {
-                    ForEach(expenses) { item in
-                        if item.type == "Business" {
-                            ListItemSwiftData(item: item)
-                        }
-                    }
-                    .onDelete(perform: removeItem)
-                }
-                
-                Section {
-                    HStack {
-                        Text("Total")
-                            .font(.headline)
-                        Spacer()
-                        Text(
-                            total,
-                            format: .currency(code: currencyPreference)
-                        )
-                        .fontWeight(.bold)
-                    }
-                }
-            }
+            ExpensesViewSwiftData(sortOrder: sort)
             .navigationTitle("iExpenses")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -71,24 +34,38 @@ struct ContentViewWithSwiftData: View {
                         Text("Menu")
                     }
                 }
+                    
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu("Sort", systemImage: "arrow.up.arrow.down") {
+                        Picker("Sort", selection: $sort) {
+                            Text("Sort by Name")
+                                .tag([
+                                    SortDescriptor(\ExpenseItemData.name),
+                                    SortDescriptor(\ExpenseItemData.amount),
+                                ])
+                            
+                            Text("Sort by Amount")
+                                .tag([
+                                    SortDescriptor(\ExpenseItemData.amount),
+                                    SortDescriptor(\ExpenseItemData.name)
+                                ])
+                        }
+                    }
+                }
+                
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink("Add") {
                         AddViewSwiftData()
                     }
-                    
                 }
-            }
+            } // toolbar
         }
-    }
-    
-    func removeItem(at offsets: IndexSet) {
-//        expenses.items.remove(atOffsets: offsets)
     }
     
     func markComplete(){
-        expenses.forEach { item in
-            item.isComplete = true
-        }
+//        expenses.forEach { item in
+//            item.isComplete = true
+//        }
     }
 }
 

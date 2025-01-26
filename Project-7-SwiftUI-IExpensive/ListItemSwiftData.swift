@@ -4,8 +4,6 @@
 //
 //  Created by Kevin Cuadros on 25/01/25.
 //
-
-
 //
 //  ListItem.swift
 //  Project-7-SwiftUI-IExpensive
@@ -16,6 +14,8 @@
 import SwiftUI
 
 struct ListItemSwiftData: View {
+    
+    @Environment(\.modelContext) var modelContext
     @Bindable var item: ExpenseItemData
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
     
@@ -39,7 +39,7 @@ struct ListItemSwiftData: View {
         }
         .contextMenu {
             Button(role: .destructive) {
-//                expenses.items.removeAll(where: { $0.id == item.id })
+                modelContext.delete(item)
             } label: {
                 Text("Delete")
                 Image(systemName: "trash")
@@ -59,19 +59,7 @@ struct ListItemSwiftData: View {
     
     
     func toggleCompleteItem() {
-        
         item.isComplete.toggle()
-        
-//        if let index = expenses.items.firstIndex(where: { $0.id == item.id }) {
-//            withAnimation{
-//                expenses.items[index].isComplete.toggle()
-//            }
-//        }
-//        
-//        expenses.items.sort{
-//            !$0.isComplete && $1.isComplete
-//        }
-        
     }
     
 }
@@ -85,6 +73,5 @@ struct ListItemSwiftData: View {
             isComplete: false
         ),
         currencyPreference: "COP"
-//        expenses: Expenses()
     )
 }
