@@ -12,6 +12,7 @@ struct ContentViewWithSwiftData: View {
     
     @Environment(\.modelContext) var modelContext
     @State private var showingAddExpense = false
+    @State private var textSearch = ""
     
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
     
@@ -22,8 +23,19 @@ struct ContentViewWithSwiftData: View {
     
     
     var body: some View {
-        NavigationStack(){
-            ExpensesViewSwiftData(sortOrder: sort)
+        NavigationStack {
+            List {
+                HStack {
+                    TextField("Search", text: $textSearch)
+                    Button {
+                        textSearch = ""
+                    } label: {
+                        Image(systemName: "xmark.circle")
+                    }
+                    .buttonStyle(.plain)
+                }
+                ExpensesViewSwiftData(search: textSearch, sortOrder: sort)
+            }
             .navigationTitle("iExpenses")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

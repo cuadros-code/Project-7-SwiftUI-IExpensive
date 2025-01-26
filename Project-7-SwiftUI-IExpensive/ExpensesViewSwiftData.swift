@@ -26,43 +26,47 @@ struct ExpensesViewSwiftData: View {
     }
     
     var body: some View {
-        List {
-            Section("Personal") {
-                ForEach(expenses) { item in
-                    if item.type == "Personal" {
-                        ListItemSwiftData(item: item)
-                    }
+        Section("Personal") {
+            ForEach(expenses) { item in
+                if item.type == "Personal" {
+                    ListItemSwiftData(item: item)
                 }
-                .onDelete(perform: removeItem)
-                
             }
+            .onDelete(perform: removeItem)
             
-            Section("Business") {
-                ForEach(expenses) { item in
-                    if item.type == "Business" {
-                        ListItemSwiftData(item: item)
-                    }
+        }
+        
+        Section("Business") {
+            ForEach(expenses) { item in
+                if item.type == "Business" {
+                    ListItemSwiftData(item: item)
                 }
-                .onDelete(perform: removeItem)
             }
-            
-            Section {
-                HStack {
-                    Text("Total")
-                        .font(.headline)
-                    Spacer()
-                    Text(
-                        total,
-                        format: .currency(code: currencyPreference)
-                    )
-                    .fontWeight(.bold)
-                }
+            .onDelete(perform: removeItem)
+        }
+        
+        Section {
+            HStack {
+                Text("Total")
+                    .font(.headline)
+                Spacer()
+                Text(
+                    total,
+                    format: .currency(code: currencyPreference)
+                )
+                .fontWeight(.bold)
             }
         }
     }
     
-    init(sortOrder: [SortDescriptor<ExpenseItemData>]){
-        _expenses = Query(sort: sortOrder)
+    init(search: String, sortOrder: [SortDescriptor<ExpenseItemData>]){
+        _expenses = Query(filter: #Predicate<ExpenseItemData> { item in
+            if search.count == 0 {
+                return true
+            } else {
+                return item.name.localizedStandardContains(search)
+            }
+        }, sort: sortOrder)
     }
     
     func removeItem(at offsets: IndexSet) {
@@ -80,6 +84,6 @@ struct ExpensesViewSwiftData: View {
 }
 
 #Preview {
-    ExpensesViewSwiftData(sortOrder: [])
+    ExpensesViewSwiftData(search: "", sortOrder: [])
         .modelContainer(for: ExpenseItemData.self)
 }
