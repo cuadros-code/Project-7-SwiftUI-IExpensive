@@ -12,6 +12,7 @@ struct ExpensesViewSwiftData: View {
     
     @Environment(\.modelContext) var modelContext
     @Query() var expenses: [ExpenseItemData]
+    @Binding var isAllComplete: Bool
     
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
     
@@ -57,9 +58,18 @@ struct ExpensesViewSwiftData: View {
                 .fontWeight(.bold)
             }
         }
+        .onChange(of: isAllComplete) { _ , newValue in
+            if newValue {
+                markComplete()
+            }
+        }
     }
     
-    init(search: String, sortOrder: [SortDescriptor<ExpenseItemData>]){
+    init(
+        search: String,
+        sortOrder: [SortDescriptor<ExpenseItemData>],
+        isAllComplete: Binding<Bool>
+    ){
         _expenses = Query(filter: #Predicate<ExpenseItemData> { item in
             if search.count == 0 {
                 return true
@@ -67,6 +77,8 @@ struct ExpensesViewSwiftData: View {
                 return item.name.localizedStandardContains(search)
             }
         }, sort: sortOrder)
+        
+        _isAllComplete = isAllComplete
     }
     
     func removeItem(at offsets: IndexSet) {
@@ -84,6 +96,10 @@ struct ExpensesViewSwiftData: View {
 }
 
 #Preview {
-    ExpensesViewSwiftData(search: "", sortOrder: [])
+    ExpensesViewSwiftData(
+        search: "",
+        sortOrder: [],
+        isAllComplete: .constant(false)
+    )
         .modelContainer(for: ExpenseItemData.self)
 }

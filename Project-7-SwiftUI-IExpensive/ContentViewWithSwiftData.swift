@@ -10,8 +10,8 @@ import SwiftData
 
 struct ContentViewWithSwiftData: View {
     
-    @Environment(\.modelContext) var modelContext
     @State private var showingAddExpense = false
+    @State private var markAllComplete = false
     @State private var textSearch = ""
     
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
@@ -20,7 +20,6 @@ struct ContentViewWithSwiftData: View {
         SortDescriptor(\ExpenseItemData.amount),
         SortDescriptor(\ExpenseItemData.name),
     ]
-    
     
     var body: some View {
         NavigationStack {
@@ -34,19 +33,27 @@ struct ContentViewWithSwiftData: View {
                     }
                     .buttonStyle(.plain)
                 }
-                ExpensesViewSwiftData(search: textSearch, sortOrder: sort)
+                
+                ExpensesViewSwiftData(
+                    search: textSearch,
+                    sortOrder: sort,
+                    isAllComplete: $markAllComplete
+                )
             }
+            
             .navigationTitle("iExpenses")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
                         EditButton()
-                        Button("Mark all", action: markComplete)
+                        Button("Mark all") {
+                            markAllComplete.toggle()
+                        }
                     } label: {
                         Text("Menu")
                     }
                 }
-                    
+                
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu("Sort", systemImage: "arrow.up.arrow.down") {
                         Picker("Sort", selection: $sort) {
@@ -71,14 +78,10 @@ struct ContentViewWithSwiftData: View {
                     }
                 }
             } // toolbar
+            
         }
     }
     
-    func markComplete(){
-//        expenses.forEach { item in
-//            item.isComplete = true
-//        }
-    }
 }
 
 #Preview {
