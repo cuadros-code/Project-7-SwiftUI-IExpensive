@@ -13,6 +13,7 @@ struct ContentViewWithSwiftData: View {
     @State private var showingAddExpense = false
     @State private var markAllComplete = false
     @State private var textSearch = ""
+    @State private var showingTextField = false
     
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
     
@@ -23,23 +24,37 @@ struct ContentViewWithSwiftData: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                HStack {
-                    TextField("Search", text: $textSearch)
-                    Button {
-                        textSearch = ""
-                    } label: {
-                        Image(systemName: "xmark.circle")
+            VStack {
+                List {
+                    if showingTextField {
+                        HStack {
+                            TextField("Search", text: $textSearch)
+                            Button {
+                                textSearch = ""
+                            } label: {
+                                Image(systemName: "xmark.circle")
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
-                    .buttonStyle(.plain)
+                    
+                    ExpensesViewSwiftData(
+                        search: textSearch,
+                        sortOrder: sort,
+                        isAllComplete: $markAllComplete
+                    )
                 }
-                
-                ExpensesViewSwiftData(
-                    search: textSearch,
-                    sortOrder: sort,
-                    isAllComplete: $markAllComplete
-                )
             }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 15)
+                    .onChanged { value in
+                        withAnimation {
+                            if value.translation.height > 50 {
+                                showingTextField = true
+                            }
+                        }
+                    }
+            )
             
             .navigationTitle("iExpenses")
             .toolbar {
