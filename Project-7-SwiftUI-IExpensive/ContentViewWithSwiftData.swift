@@ -8,6 +8,12 @@
 import SwiftUI
 import SwiftData
 
+enum FilterTypes {
+    case Personal
+    case Business
+    case All
+}
+
 struct ContentViewWithSwiftData: View {
     
     @State private var showingAddExpense = false
@@ -15,33 +21,58 @@ struct ContentViewWithSwiftData: View {
     @State private var textSearch = ""
     @State private var showingTextField = false
     
+    @State private var filterTypes: FilterTypes = .All
+    
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
     
     @State private var sort: [SortDescriptor] = [
-        SortDescriptor(\ExpenseItemData.amount),
         SortDescriptor(\ExpenseItemData.name),
+        SortDescriptor(\ExpenseItemData.amount),
     ]
     
     var body: some View {
         NavigationStack {
             VStack {
                 List {
-                    if showingTextField {
-                        HStack {
-                            TextField("Search", text: $textSearch)
-                            Button {
-                                textSearch = ""
-                            } label: {
-                                Image(systemName: "xmark.circle")
+                    Section {
+                        if showingTextField {
+                            HStack {
+                                TextField("Search", text: $textSearch)
+                                Button {
+                                    textSearch = ""
+                                } label: {
+                                    Image(systemName: "xmark.circle")
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
+                    
+                    Section {
+                        Picker("", selection: $sort) {
+                            Text("Sort by Name")
+                                .tag([
+                                    SortDescriptor(\ExpenseItemData.name),
+                                    SortDescriptor(\ExpenseItemData.amount),
+                                ])
+                            
+                            Text("Sort by Amount")
+                                .tag([
+                                    SortDescriptor(\ExpenseItemData.amount),
+                                    SortDescriptor(\ExpenseItemData.name)
+                                ])
+                            
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    .listRowBackground(Color.clear)
+                    .listSectionSpacing(0.0)
                     
                     ExpensesViewSwiftData(
                         search: textSearch,
                         sortOrder: sort,
-                        isAllComplete: $markAllComplete
+                        isAllComplete: $markAllComplete,
+                        filterType: $filterTypes
                     )
                 }
             }
@@ -70,19 +101,14 @@ struct ContentViewWithSwiftData: View {
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu("Sort", systemImage: "arrow.up.arrow.down") {
-                        Picker("Sort", selection: $sort) {
-                            Text("Sort by Name")
-                                .tag([
-                                    SortDescriptor(\ExpenseItemData.name),
-                                    SortDescriptor(\ExpenseItemData.amount),
-                                ])
-                            
-                            Text("Sort by Amount")
-                                .tag([
-                                    SortDescriptor(\ExpenseItemData.amount),
-                                    SortDescriptor(\ExpenseItemData.name)
-                                ])
+                    Menu("Filter", systemImage: "line.3.horizontal.decrease") {
+                        Picker("Filter", selection: $filterTypes) {
+                            Text("All")
+                                .tag(FilterTypes.All)
+                            Text("Filter Personal")
+                                .tag(FilterTypes.Personal)
+                            Text("Fiter Business")
+                                .tag(FilterTypes.Business)
                         }
                     }
                 }

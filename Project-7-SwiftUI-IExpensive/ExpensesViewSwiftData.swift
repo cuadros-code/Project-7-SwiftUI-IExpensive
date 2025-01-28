@@ -13,37 +13,56 @@ struct ExpensesViewSwiftData: View {
     @Environment(\.modelContext) var modelContext
     @Query() var expenses: [ExpenseItemData]
     @Binding var isAllComplete: Bool
+    @Binding var filterTypes: FilterTypes
     
     var currencyPreference = Locale.current.currency?.identifier ?? "USD"
     
     var total: Double {
         var totalAmount: Double = 0.0
         expenses.forEach { item in
-            if item.isComplete == false {
-                totalAmount += item.amount
+            if filterTypes == .All {
+                if item.isComplete == false {
+                    totalAmount += item.amount
+                }
+            }
+            
+            if filterTypes == .Personal {
+                if item.isComplete == false && item.type == "Personal" {
+                    totalAmount += item.amount
+                }
+            }
+            
+            if filterTypes == .Business {
+                if item.isComplete == false && item.type == "Business" {
+                    totalAmount += item.amount
+                }
             }
         }
         return totalAmount
     }
     
     var body: some View {
-        Section("Personal") {
-            ForEach(expenses) { item in
-                if item.type == "Personal" {
-                    ListItemSwiftData(item: item)
+        if filterTypes == .All || filterTypes == .Personal {
+            Section("Personal") {
+                ForEach(expenses) { item in
+                    if item.type == "Personal" {
+                        ListItemSwiftData(item: item)
+                    }
                 }
+                .onDelete(perform: removeItem)
+                
             }
-            .onDelete(perform: removeItem)
-            
         }
         
-        Section("Business") {
-            ForEach(expenses) { item in
-                if item.type == "Business" {
-                    ListItemSwiftData(item: item)
+        if filterTypes == .All || filterTypes == .Business {
+            Section("Business") {
+                ForEach(expenses) { item in
+                    if item.type == "Business" {
+                        ListItemSwiftData(item: item)
+                    }
                 }
+                .onDelete(perform: removeItem)
             }
-            .onDelete(perform: removeItem)
         }
         
         Section {
@@ -68,7 +87,8 @@ struct ExpensesViewSwiftData: View {
     init(
         search: String,
         sortOrder: [SortDescriptor<ExpenseItemData>],
-        isAllComplete: Binding<Bool>
+        isAllComplete: Binding<Bool>,
+        filterType: Binding<FilterTypes>
     ){
         _expenses = Query(filter: #Predicate<ExpenseItemData> { item in
             if search.count == 0 {
@@ -79,6 +99,7 @@ struct ExpensesViewSwiftData: View {
         }, sort: sortOrder)
         
         _isAllComplete = isAllComplete
+        _filterTypes = filterType
     }
     
     func removeItem(at offsets: IndexSet) {
@@ -99,7 +120,8 @@ struct ExpensesViewSwiftData: View {
     ExpensesViewSwiftData(
         search: "",
         sortOrder: [],
-        isAllComplete: .constant(false)
+        isAllComplete: .constant(false),
+        filterType: .constant(.All)
     )
         .modelContainer(for: ExpenseItemData.self)
 }
